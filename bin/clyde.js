@@ -9,7 +9,7 @@ const path = require('path')
 
 const conf = require('rc')('clyde', {
   // defaults
-  workingFolder: './',
+  workingFolder: process.cwd(),
   local: false
 })
 
