@@ -67,7 +67,7 @@ function cloneFromRemote(rootFolder, dependencies) {
       // Parse out the branch / tag from the dependency
       const gitParts = dependencies[key].split('~')
       const remote = gitParts[0]
-      const branch = gitParts[1]
+      const branch = gitParts.length > 1 ? gitParts[1] : null
       const local = rootFolder + '/' + key
 
       // Remove existing folder
@@ -78,10 +78,22 @@ function cloneFromRemote(rootFolder, dependencies) {
       // Do a git clone
       console.log(chalk.green('--> Cloning'))
       simpleGit.clone(remote, local, function() {
-        // Remove git
-        console.log(chalk.green('--> Removing git from cloned folder'))
-        rmFolder(local + '/.git')
-        rmFile(local + '/.gitignore')
+        // Checkout branch if supplied
+        if (branch != null) {
+          const clonedBranch = require('simple-git')(local)
+          clonedBranch.checkout(branch, function() {
+            console.log(chalk.green('--> Checked out branch ' + branch))
+            // Remove git
+            console.log(chalk.green('--> Removing git from cloned folder'))
+            rmFolder(local + '/.git')
+            rmFile(local + '/.gitignore')
+          })
+        } else {
+          // Remove git
+          console.log(chalk.green('--> Removing git from cloned folder'))
+          rmFolder(local + '/.git')
+          rmFile(local + '/.gitignore')
+        }
 
         // Make everything read only
   //      readOnlyFolder(local)
